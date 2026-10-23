@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>California House Price Prediction — Machine Learning Web App (1990 Census Block Groups)</title>
+<meta name="description" content="Estimate the median house value of a California census block group with a gradient-boosting machine learning model that runs in your browser. Pick a spot on the map, adjust income, house age and rooms. California Housing dataset (Pace & Barry, 1997).">
+<meta name="keywords" content="california house price prediction, california housing dataset, machine learning, gradient boosting, scikit-learn, regression, real estate, web app">
+<meta name="author" content="Rishabh Aryan">
+<meta property="og:title" content="California House Price Prediction — ML in your browser">
+<meta property="og:description" content="Gradient-boosted trees trained on 20,640 California block groups, running client-side, with a Leaflet map.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://rishabh-bgp.github.io/california-house-price-prediction/">
+<link rel="canonical" href="https://rishabh-bgp.github.io/california-house-price-prediction/">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<link rel="stylesheet" href="style.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"California House Price Prediction","url":"https://rishabh-bgp.github.io/california-house-price-prediction/","applicationCategory":"EducationalApplication","operatingSystem":"Any","author":{"@type":"Person","name":"Rishabh Aryan","url":"https://github.com/Rishabh-bgp"},"isBasedOn":"California Housing dataset, Pace & Barry (1997), StatLib"}</script>
+</head>
+<body>
+<header class="hero">
+  <svg class="art" viewBox="0 0 1200 340" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+    <defs>
+      <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b2d5c"/><stop offset=".38" stop-color="#c2487a"/><stop offset=".68" stop-color="#ff7a59"/><stop offset="1" stop-color="#ffc46b"/></linearGradient>
+      <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a9e9a"/><stop offset="1" stop-color="#0d4f5c"/></linearGradient>
+    </defs>
+    <rect width="1200" height="340" fill="url(#sky)"/>
+    <circle cx="600" cy="250" r="95" fill="#ffd98a" opacity=".95"/>
+    <g fill="#ffe7b0" opacity=".55"><rect x="505" y="205" width="190" height="6"/><rect x="515" y="222" width="170" height="7"/><rect x="530" y="239" width="140" height="8"/></g>
+    <rect y="252" width="1200" height="88" fill="url(#sea)"/>
+    <g stroke="#ffd98a" stroke-width="3" opacity=".35"><path d="M520 268h160M545 284h110M570 300h60"/></g>
+    <!-- original suspension-bridge line art -->
+    <g fill="none" stroke="#8f1f1f" stroke-linecap="round">
+      <path d="M180 262 H1020" stroke-width="7"/>
+      <path d="M380 262 V92 M404 262 V92 M380 92 H404 M380 140 H404 M380 190 H404" stroke-width="7"/>
+      <path d="M796 262 V92 M820 262 V92 M796 92 H820 M796 140 H820 M796 190 H820" stroke-width="7"/>
+      <path d="M180 250 Q290 245 392 94 Q600 250 808 94 Q910 245 1020 250" stroke-width="3.5"/>
+      <g stroke-width="1.5"><path d="M440 262V163M480 262V200M520 262V222M560 262V236M600 262V240M640 262V236M680 262V222M720 262V200M760 262V163M340 262V170M300 262V215M260 262V236M860 262V170M900 262V215M940 262V236"/></g>
+    </g>
+    <!-- palm silhouettes -->
+    <g fill="#1d1a33">
+      <path d="M92 340 C98 280 108 220 126 160 L132 162 C118 222 112 280 110 340Z"/>
+      <path d="M128 160 c-30-20-70-18-96 2 c30-6 60-2 92 4z M128 160 c-10-30-38-50-74-52 c26 12 48 30 70 56z M128 160 c16-30 46-44 80-40 c-30 6-54 22-74 44z M128 160 c34-6 66 8 84 34 c-26-14-52-22-82-30z M128 160 c-26 2-50 22-60 50 c16-22 36-36 62-46z"/>
+      <path d="M1092 340 C1086 290 1074 240 1056 196 L1062 193 C1082 240 1096 290 1108 340Z"/>
+      <path d="M1058 196 c26-18 62-18 86 0 c-28-4-56 0-84 6z M1058 196 c8-28 34-44 66-46 c-24 10-44 26-62 50z M1058 196 c-14-28-42-40-72-36 c26 6 48 20 68 40z M1058 196 c-30-4-58 10-72 34 c22-14 46-22 70-28z"/>
+      <path d="M1000 340 C996 306 990 278 978 254 L983 252 C996 278 1004 306 1010 340Z"/>
+      <path d="M980 254 c18-14 44-14 62 0 c-20-3-40 0-60 4z M980 254 c-14-14-40-16-56-4 c20-1 38 2 54 8z M980 254 c4-20 22-32 44-32 c-16 6-30 18-42 34z"/>
+    </g>
+  </svg>
+  <div class="hero-text">
+    <p class="kicker">Real Estate ML Trilogy · Part III</p>
+    <h1>California House Price Estimator</h1>
+    <p class="sub">Gradient-boosted trees trained on 20,640 census block groups, running entirely in your browser.</p>
+  </div>
+</header>
+
+<main>
+  <section class="card map-card" aria-labelledby="h-map">
+    <h2 id="h-map">1 · Pick a place</h2>
+    <p class="hint">Click the map to move the pin. Dots are a sample of 2,500 block groups, coloured by recorded median value.</p>
+    <div id="map" role="application" aria-label="Map of California block groups"></div>
+    <div class="legend"><span style="--c:#1a9e9a">&lt; $150k</span><span style="--c:#f4c27a">$150–300k</span><span style="--c:#ff6f59">$300–450k</span><span style="--c:#8f1f1f">≥ $450k</span></div>
+    <div class="presets" aria-label="Example locations"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-in">
+    <h2 id="h-in">2 · Describe the block group</h2>
+    <div id="sliders"></div>
+  </section>
+
+  <section class="card result" aria-labelledby="h-out" aria-live="polite">
+    <h2 id="h-out">3 · Estimate</h2>
+    <p class="price" id="price">–</p>
+    <p class="cap-flag" id="capflag" hidden>At the dataset's $500,000 top-code: the true value could be higher.</p>
+    <p>5–95% range: <strong id="range">–</strong> <span class="fine" id="cov"></span></p>
+    <div class="bar"><div id="band"></div><div id="pin"></div></div>
+    <canvas id="hist" width="560" height="150" aria-label="Distribution of recorded values with this estimate marked"></canvas>
+    <p class="fine" id="pct"></p>
+    <p class="fine">Values are <strong>1990 US dollars</strong> for a whole census block group, not one house.</p>
+  </section>
+
+  <section class="card about" aria-labelledby="h-about">
+    <h2 id="h-about">About</h2>
+    <ul>
+      <li>Model: scikit-learn gradient boosting (Huber loss, 400 trees, depth 5) on log value; 5% / 95% quantile models (150 trees, depth 4) give the range.</li>
+      <li>Repeated 5-fold CV: see the <a href="https://github.com/Rishabh-bgp/california-house-price-prediction#-results">results table</a>, including a harsher spatial CV.</li>
+      <li>Data: California Housing, R. K. Pace &amp; R. Barry (1997), <em>Sparse Spatial Autoregressions</em>, Statistics &amp; Probability Letters 33, 291–297; via StatLib and scikit-learn.</li>
+      <li>Developed as part of my training with KF Property Network Pte Ltd (KFPN), a Knight Frank Singapore subsidiary, and submitted as my capstone for the NIELIT Ropar × IIT Ropar AI &amp; ML programme.</li>
+    </ul>
+    <p class="fine"><strong>Disclaimer:</strong> a personal educational project on public 1990 data. Not a valuation, not financial advice, and not endorsed by KFPN, Knight Frank or any other company.</p>
+    <p class="trilogy">Trilogy: <a href="https://rishabh-bgp.github.io/real-estate-valuation-taiwan/">I · Taiwan</a> · <a href="https://rishabh-bgp.github.io/boston-house-price-prediction/">II · Boston</a> · <strong>III · California</strong></p>
+  </section>
+</main>
+<footer>© 2026 Rishabh Aryan · MIT licence · <a href="https://github.com/Rishabh-bgp/california-house-price-prediction">Source on GitHub</a> · Map data © OpenStreetMap contributors</footer>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="app.js"></script>
+</body>
+</html>
